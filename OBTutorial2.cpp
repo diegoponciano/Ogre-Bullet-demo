@@ -34,7 +34,7 @@ OBTutorial2::OBTutorial2(void)
     mDispatcher = new btCollisionDispatcher(mCollisionConfiguration);
     mBroadphase = new btDbvtBroadphase();
    
-    mSolver = new btSequentialImpulseConstrainstSolver();
+    mSolver = new btSequentialImpulseConstraintSolver();
 }
 //-------------------------------------------------------------------------------------
 OBTutorial2::~OBTutorial2(void)
@@ -113,9 +113,8 @@ void OBTutorial2::createScene(void)
 
 
     // Start Bullet
-    mWorld = new btDiscreteDynamicsWorld(mSceneMgr,  // gravity vector for Bullet
-                                Ogre::AxisAlignedBox (Ogre::Vector3 (-10000, -10000, -10000), //aligned box for Bullet
-                                Ogre::Vector3 (10000,  10000,  10000)), Ogre::Vector3(0,-9.81,0) );
+    mWorld = new btDiscreteDynamicsWorld(mDispatcher,  // gravity vector for Bullet
+                                mBroadphase, mSolver, mCollisionConfiguration );
  
     // add Debug info display tool
  	//debugDrawer = new OgreBulletCollisions::DebugDrawer();
@@ -123,8 +122,8 @@ void OBTutorial2::createScene(void)
  
  	//mWorld->setDebugDrawer(debugDrawer);
  	//mWorld->setShowDebugShapes(true);		// enable it if you want to see the Bullet containers
- 	SceneNode *node = mSceneMgr->getRootSceneNode()->createChildSceneNode("debugDrawer", Ogre::Vector3::ZERO);
- 	node->attachObject(static_cast <SimpleRenderable *> (debugDrawer));
+ 	//SceneNode *node = mSceneMgr->getRootSceneNode()->createChildSceneNode("debugDrawer", Ogre::Vector3::ZERO);
+ 	//node->attachObject(static_cast <SimpleRenderable *> (debugDrawer));
  
     // Define a floor plane mesh
  	Entity *ent;
@@ -140,12 +139,13 @@ void OBTutorial2::createScene(void)
     mSceneMgr->getRootSceneNode()->createChildSceneNode()->attachObject(ent);
  
  	// add collision detection to it
- 	OgreBulletCollisions::CollisionShape *Shape;
- 	Shape = new OgreBulletCollisions::StaticPlaneCollisionShape(Ogre::Vector3(0,1,0), 0); // (normal vector, distance)
+ 	btCollisionShape *Shape;
+ 	Shape = new btStaticPlaneShape(toBulletVector(Ogre::Vector3(0,1,0)), 0); // (normal vector, distance)
  	// a body is needed for the shape
- 	OgreBulletDynamics::RigidBody *defaultPlaneBody = new OgreBulletDynamics::RigidBody("BasePlane",
-  												    mWorld);
- 	defaultPlaneBody->setStaticShape(Shape, 0.1, 0.8);// (shape, restitution, friction)
+        MyMotionState * defaultMotionState = new MyMotionState(btTransform(btQuaternion(btScalar(0),btScalar(0),btScalar(0),btScalar(1))), ent->getParentSceneNode());
+        btRigidBody *defaultBody = new btRigidBody(btScalar(1), defaultMotionState, Shape);
+ 	btRigidBody *defaultPlaneBody = new btRigidBody(btScalar(0), defaultMotionState, Shape);
+ 	//defaultPlaneBody->setStaticShape(Shape, 0.1, 0.8);// (shape, restitution, friction)
  	// push the created objects to the deques
  	mShapes.push_back(Shape);
  	mBodies.push_back(defaultPlaneBody);
@@ -156,7 +156,7 @@ void OBTutorial2::createScene(void)
  					"Box" + StringConverter::toString(mNumEntitiesInstanced),
  					"cube.mesh");			    
  	entity->setMaterialName("Examples/BumpyMetal");
- 	node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
+       Ogre::SceneNode *node = mSceneMgr->getRootSceneNode()->createChildSceneNode();
  	node->attachObject(entity);
  	node->scale(0.05f, 0.05f, 0.05f);	// the cube is too big for us
 	createBoxShape(entity, Ogre::Vector3(0.0,0.0,0.0), false);
@@ -183,6 +183,7 @@ bool OBTutorial2::processUnbufferedInput(const Ogre::FrameEvent& evt)
  					"Box" + StringConverter::toString(mNumEntitiesInstanced),
  					"cube.mesh");			    
 		entity->setCastShadows(true);
+                createBoxShape(entity, position, false);
 		// we need the bounding box of the box to be able to set the size of the Bullet-box
 		AxisAlignedBox boundingB = entity->getBoundingBox();
 		size = boundingB.getSize(); size /= 2.0f; // only the half needed
@@ -195,7 +196,7 @@ bool OBTutorial2::processUnbufferedInput(const Ogre::FrameEvent& evt)
 		size *= 0.05f;						// don't forget to scale down the Bullet-box too
  
 		// after that create the Bullet shape with the calculated size
-		OgreBulletCollisions::BoxCollisionShape *sceneBoxShape = new OgreBulletCollisions::BoxCollisionShape(size);
+		/*OgreBulletCollisions::BoxCollisionShape *sceneBoxShape = new OgreBulletCollisions::BoxCollisionShape(size);
 		// and the Bullet rigid body
 		OgreBulletDynamics::RigidBody *defaultBody = new OgreBulletDynamics::RigidBody(
  					"defaultBoxRigid" + StringConverter::toString(mNumEntitiesInstanced), 
@@ -213,7 +214,7 @@ bool OBTutorial2::processUnbufferedInput(const Ogre::FrameEvent& evt)
 					mCamera->getDerivedDirection().normalisedCopy() * Ogre::Math::RangeRandom(0.7f,20.0f) ); // shooting speed
 		// push the created objects to the dequese
 		mShapes.push_back(sceneBoxShape);
-		mBodies.push_back(defaultBody);				
+		mBodies.push_back(defaultBody);		**/		
 		mToggle = 0.5;
 	}
 
