@@ -1,0 +1,15 @@
+# CMake
+CMakeCache.txt
+CMakeFiles
+Makefile
+cmake_install.cmake
+install_manifest.txt
+
+# Qt Creator
+*.txt.user
+
+# CodeBlocks
+*.cbp
+
+# binaries
+dist/bin/
