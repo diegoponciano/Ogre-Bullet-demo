@@ -22,8 +22,8 @@ BaseApplication::BaseApplication(void)
     mCamera(0),
     mSceneMgr(0),
     mWindow(0),
-    mResourcesCfg("/usr/share/ogre/resources.cfg"),
-    mPluginsCfg("/usr/share/ogre/plugins.cfg"),
+    mResourcesCfg("resources.cfg"),
+    mPluginsCfg("plugins.cfg"),
     mTrayMgr(0),
     mCameraMan(0),
     mDetailsPanel(0),
@@ -195,8 +195,8 @@ void BaseApplication::go(void)
     mResourcesCfg = "resources_d.cfg";
     mPluginsCfg = "plugins_d.cfg";
 #else
-    mResourcesCfg = "/usr/share/ogre/resources.cfg";
-    mPluginsCfg = "/usr/share/ogre/plugins.cfg";
+    mResourcesCfg = "resources.cfg";
+    mPluginsCfg = "plugins.cfg";
 #endif
 
     if (!setup())
