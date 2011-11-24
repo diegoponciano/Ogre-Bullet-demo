@@ -12,4 +12,6 @@ install_manifest.txt
 *.cbp
 
 # binaries
-dist/bin/
+dist/bin/*
+!dist/bin/plugins.cfg
+!dist/bin/resources.cfg
